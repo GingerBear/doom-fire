@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Doom Fire</title>
+  </head>
+  <body>
+    <canvas width="800" height="600" class="fire"></canvas>
+  </body>
+
+  <script>
+    const colorMap = [
+      { r: 7, g: 7, b: 7 },
+      { r: 31, g: 7, b: 7 },
+      { r: 47, g: 15, b: 7 },
+      { r: 71, g: 15, b: 7 },
+      { r: 87, g: 23, b: 7 },
+      { r: 103, g: 31, b: 7 },
+      { r: 119, g: 31, b: 7 },
+      { r: 143, g: 39, b: 7 },
+      { r: 159, g: 47, b: 7 },
+      { r: 175, g: 63, b: 7 },
+      { r: 191, g: 71, b: 7 },
+      { r: 199, g: 71, b: 7 },
+      { r: 223, g: 79, b: 7 },
+      { r: 223, g: 87, b: 7 },
+      { r: 223, g: 87, b: 7 },
+      { r: 215, g: 95, b: 7 },
+      { r: 215, g: 95, b: 7 },
+      { r: 215, g: 103, b: 15 },
+      { r: 207, g: 111, b: 15 },
+      { r: 207, g: 119, b: 15 },
+      { r: 207, g: 127, b: 15 },
+      { r: 207, g: 135, b: 23 },
+      { r: 199, g: 135, b: 23 },
+      { r: 199, g: 143, b: 23 },
+      { r: 199, g: 151, b: 31 },
+      { r: 191, g: 159, b: 31 },
+      { r: 191, g: 159, b: 31 },
+      { r: 191, g: 167, b: 39 },
+      { r: 191, g: 167, b: 39 },
+      { r: 191, g: 175, b: 47 },
+      { r: 183, g: 175, b: 47 },
+      { r: 183, g: 183, b: 47 },
+      { r: 183, g: 183, b: 55 },
+      { r: 207, g: 207, b: 111 },
+      { r: 223, g: 223, b: 159 },
+      { r: 239, g: 239, b: 199 },
+      { r: 255, g: 255, b: 255 }
+    ];
+
+    const FPS = 30;
+    const WIDTH = 300;
+    const HEIGHT = 150;
+    const canvas = document.querySelector('.fire');
+    const ctx = canvas.getContext('2d');
+    const frame = [];
+
+    let timeToFade = 10; // second
+    let isFading = false;
+
+    setupFrame();
+    startAnimate();
+    setTimeout(() => {
+      isFading = true;
+    }, timeToFade * 1000);
+
+    function setupFrame() {
+      // set all the black
+      n(HEIGHT).forEach((_, i) => {
+        n(WIDTH).forEach((_, j) => {
+          frame[i] = frame[i] || [];
+          frame[i][j] = 0;
+        });
+      });
+
+      // set last line the white
+      n(WIDTH).forEach((_, j) => {
+        frame[HEIGHT - 1][j] = 36;
+      });
+    }
+
+    function startAnimate() {
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          drawFrame(createFrame());
+          startAnimate();
+        });
+      }, 1000 / FPS);
+    }
+
+    function createFrame() {
+      n(WIDTH).forEach((_, j) => {
+        n(HEIGHT).forEach((_, i) => {
+          // skip the first line, because we will set it
+          // by the pixel below it
+          if (i === 0) {
+            return;
+          }
+
+          const currentColor = frame[i][j];
+
+          // if current color is black, set the color
+          // of pixle above as black as well
+          if (currentColor === 0) {
+            frame[i - 1][j] = 0;
+          } else {
+            // if not, find a pixel above and left or right (randomly)
+            // and set its color to either current color or a darker color (randomly)
+            const rand = Math.round(Math.random() * 3.0);
+            frame[i - 1][j - rand + 1] = currentColor - (rand & 1);
+          }
+        });
+      });
+
+      // fading the flame by keep setting the bottom pixel to darker color
+      if (isFading) {
+        n(WIDTH).forEach((_, j) => {
+          n(7).forEach((_, i) => {
+            if (frame[HEIGHT - i - 1][j] > 0) {
+              frame[HEIGHT - i - 1][j] -= Math.round(Math.random()) & 3;
+            }
+          });
+        });
+      }
+
+      return frame;
+    }
+
+    function drawFrame(frame) {
+      const scaleWidth = Math.round(canvas.width / WIDTH);
+      const scaleHeight = Math.round(canvas.height / HEIGHT);
+
+      frame.forEach((row, j) => {
+        row.forEach((p, i) => {
+          ctx.fillStyle = `rgb(${colorMap[p].r},${colorMap[p].g},${
+            colorMap[p].b
+          })`;
+          ctx.fillRect(
+            i * scaleWidth,
+            j * scaleHeight,
+            scaleWidth,
+            scaleHeight
+          );
+        });
+      });
+    }
+
+    function n(num) {
+      return [...new Array(num)];
+    }
+  </script>
+</html>
