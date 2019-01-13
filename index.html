@@ -2,12 +2,30 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width"
+    />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Doom Fire</title>
   </head>
   <body>
-    <canvas width="800" height="600" class="fire"></canvas>
+    <h1>Doom Fire in JS</h1>
+
+    <p>
+      <a href="https://github.com/GingerBear/doom-fire/">The implementation</a> /
+      <a href="http://fabiensanglard.net/doom_fire_psx/">The original idea</a>
+    </p>
+
+    <div style="margin-bottom: 10px;">
+      <button onclick="fade()">fade</button>
+      <button onclick="start()">start</button> &nbsp;&nbsp;/&nbsp;&nbsp; <span>wind</span>
+      <input style="vertical-align: middle" type="range" oninput="changeWind(event)" />
+      &nbsp;&nbsp;/&nbsp;&nbsp; <span>intensity</span>
+      <input style="vertical-align: middle" type="range" oninput="changeIntensity(event)" />
+    </div>
+
+    <canvas width="650" height="400" class="fire"></canvas>
   </body>
 
   <script>
@@ -51,21 +69,18 @@
       { r: 255, g: 255, b: 255 }
     ];
 
-    const FPS = 30;
-    const WIDTH = 300;
-    const HEIGHT = 150;
+    const WIDTH = 200;
+    const HEIGHT = 100;
     const canvas = document.querySelector('.fire');
     const ctx = canvas.getContext('2d');
     const frame = [];
 
-    let timeToFade = 10; // second
     let isFading = false;
+    let wind = 0;
+    let intensity = 0.5;
 
     setupFrame();
     startAnimate();
-    setTimeout(() => {
-      isFading = true;
-    }, timeToFade * 1000);
 
     function setupFrame() {
       // set all the black
@@ -83,12 +98,12 @@
     }
 
     function startAnimate() {
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          drawFrame(createFrame());
+      requestAnimationFrame(() => {
+        paintFrame(createFrame());
+        setTimeout(() => {
           startAnimate();
-        });
-      }, 1000 / FPS);
+        }, 25);
+      });
     }
 
     function createFrame() {
@@ -96,21 +111,21 @@
         n(HEIGHT).forEach((_, i) => {
           // skip the first line, because we will set it
           // by the pixel below it
-          if (i === 0) {
-            return;
-          }
+          if (i === 0) return;
 
           const currentColor = frame[i][j];
 
-          // if current color is black, set the color
-          // of pixle above as black as well
           if (currentColor === 0) {
+            // if current color is black, set the color
+            // of pixle above as black as well
             frame[i - 1][j] = 0;
           } else {
-            // if not, find a pixel above and left or right (randomly)
-            // and set its color to either current color or a darker color (randomly)
-            const rand = Math.round(Math.random() * 3.0);
-            frame[i - 1][j - rand + 1] = currentColor - (rand & 1);
+            // if not black, find a pixel above and shift left or right randomly
+            const rand = Math.random();
+            const nextJ = j - Math.round(rand * 3) + 1 + wind;
+
+            // set the pixel's color to either current color or a darker color randomly
+            frame[i - 1][nextJ] = currentColor - (rand > intensity ? 1 : 0);
           }
         });
       });
@@ -120,7 +135,7 @@
         n(WIDTH).forEach((_, j) => {
           n(7).forEach((_, i) => {
             if (frame[HEIGHT - i - 1][j] > 0) {
-              frame[HEIGHT - i - 1][j] -= Math.round(Math.random()) & 3;
+              frame[HEIGHT - i - 1][j] -= Math.round(Math.random()); // -0 or -1
             }
           });
         });
@@ -129,27 +144,45 @@
       return frame;
     }
 
-    function drawFrame(frame) {
-      const scaleWidth = Math.round(canvas.width / WIDTH);
-      const scaleHeight = Math.round(canvas.height / HEIGHT);
+    function paintFrame(frame) {
+      const scaleWidth = Math.ceil(canvas.width / WIDTH);
+      const scaleHeight = Math.ceil(canvas.height / HEIGHT);
 
       frame.forEach((row, j) => {
         row.forEach((p, i) => {
-          ctx.fillStyle = `rgb(${colorMap[p].r},${colorMap[p].g},${
-            colorMap[p].b
-          })`;
-          ctx.fillRect(
-            i * scaleWidth,
-            j * scaleHeight,
-            scaleWidth,
-            scaleHeight
-          );
+          ctx.fillStyle = `rgb(${colorMap[p].r},${colorMap[p].g},${colorMap[p].b})`;
+          ctx.fillRect(i * scaleWidth, j * scaleHeight, scaleWidth, scaleHeight);
         });
       });
     }
 
     function n(num) {
       return [...new Array(num)];
+    }
+
+    function fade() {
+      isFading = true;
+    }
+
+    function start() {
+      isFading = false;
+
+      // set the bottom to white, so it can propagate up
+      n(WIDTH).forEach((_, j) => {
+        frame[HEIGHT - 1][j] = 36;
+      });
+    }
+
+    function changeWind(e) {
+      wind = Math.round((e.target.value / 100) * 10) + -5;
+    }
+
+    function changeIntensity(e) {
+      let val = e.target.value / 100;
+      val = Math.min(0.95, val);
+      val = Math.max(0.05, val);
+
+      intensity = val;
     }
   </script>
 </html>
