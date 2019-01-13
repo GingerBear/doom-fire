@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+
+    <style>
+      .container {
+        display: inline-block;
+        border-top: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        font-size: 12px;
+      }
+      .row span {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        /* START: FIG 4 */
+        border-left: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        /* END: FIG 4 */
+        box-sizing: border-box;
+        text-align: center;
+        color: #555;
+      }
+      canvas {
+        border: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <div class="container"></div> -->
+    <!-- START FIG 5 -->
+    <canvas width="650" height="400" class="fire"></canvas>
+    <!-- END FIG 5 -->
+
+    <div>
+      <br /><button onclick="handleNext()">next frame</button>
+      <button onclick="startAnimate()">start animate</button>
+      <button onclick="stopAnimate()">stop animate</button>
+      <button onclick="resetFrame()">reset frame</button>
+    </div>
+
+    <script>
+      // START: FIG 1
+      // const WIDTH = 10;
+      // const HEIGHT = 10;
+      // END: FIG 1
+
+      // START: FIG 2
+      // const WIDTH = 50;
+      // const HEIGHT = 50;
+      // END: FIG 2
+
+      // START: FIG 5
+      const WIDTH = 250;
+      const HEIGHT = 100;
+      // END: FIG 5
+
+      const container = document.querySelector('.container');
+      const convas = document.querySelector('.fire');
+      const colorMap = [
+        { r: 7, g: 7, b: 7 },
+        { r: 31, g: 7, b: 7 },
+        { r: 47, g: 15, b: 7 },
+        { r: 71, g: 15, b: 7 },
+        { r: 87, g: 23, b: 7 },
+        { r: 103, g: 31, b: 7 },
+        { r: 119, g: 31, b: 7 },
+        { r: 143, g: 39, b: 7 },
+        { r: 159, g: 47, b: 7 },
+        { r: 175, g: 63, b: 7 },
+        { r: 191, g: 71, b: 7 },
+        { r: 199, g: 71, b: 7 },
+        { r: 223, g: 79, b: 7 },
+        { r: 223, g: 87, b: 7 },
+        { r: 223, g: 87, b: 7 },
+        { r: 215, g: 95, b: 7 },
+        { r: 215, g: 95, b: 7 },
+        { r: 215, g: 103, b: 15 },
+        { r: 207, g: 111, b: 15 },
+        { r: 207, g: 119, b: 15 },
+        { r: 207, g: 127, b: 15 },
+        { r: 207, g: 135, b: 23 },
+        { r: 199, g: 135, b: 23 },
+        { r: 199, g: 143, b: 23 },
+        { r: 199, g: 151, b: 31 },
+        { r: 191, g: 159, b: 31 },
+        { r: 191, g: 159, b: 31 },
+        { r: 191, g: 167, b: 39 },
+        { r: 191, g: 167, b: 39 },
+        { r: 191, g: 175, b: 47 },
+        { r: 183, g: 175, b: 47 },
+        { r: 183, g: 183, b: 47 },
+        { r: 183, g: 183, b: 55 },
+        { r: 207, g: 207, b: 111 },
+        { r: 223, g: 223, b: 159 },
+        { r: 239, g: 239, b: 199 },
+        { r: 255, g: 255, b: 255 }
+      ];
+      const frame = [];
+
+      let isAnimating = false;
+      let wind = 0;
+      let intensity = 0.5;
+
+      setupFrame();
+      animate();
+
+      function animate() {
+        requestAnimationFrame(() => {
+          if (isAnimating) {
+            nextFrame();
+          }
+
+          setTimeout(() => {
+            animate();
+          }, 30);
+        });
+      }
+
+      function startAnimate() {
+        isAnimating = true;
+      }
+
+      function stopAnimate() {
+        isAnimating = false;
+      }
+
+      // START: FIG 1
+      // paintFrame(frame);
+      // END: FIG 1
+
+      // START: FIG 2
+      // paintFrameWithColor(frame);
+      // END: FIG 2
+
+      // START: FIG 5
+      paintFrameWithConvas(frame);
+      // END: FIG 5
+
+      function n(num) {
+        return [...new Array(num)];
+      }
+
+      function setupFrame() {
+        n(HEIGHT).forEach((_, i) => {
+          n(WIDTH).forEach((_, j) => {
+            frame[i] = frame[i] || [];
+            frame[i][j] = 0;
+          });
+        });
+
+        n(WIDTH).forEach((_, j) => {
+          // START: FIG 1
+          // frame[HEIGHT - 1][j] = 5;
+          // END: FIG 1
+
+          frame[HEIGHT - 1][j] = 36;
+        });
+      }
+
+      function updateFrame(frame) {
+        n(WIDTH).forEach((_, j) => {
+          n(HEIGHT).forEach((_, i) => {
+            if (i === 0) return;
+
+            const currentColor = frame[i][j];
+
+            if (currentColor === 0) {
+              frame[i - 1][j] = 0;
+            } else {
+              // START: FIG 1. FIG 2
+              // frame[i - 1][j] = currentColor - 1;
+              // return;
+              // END: FIG 1. FIG 2
+
+              const rand = Math.random();
+
+              // START: FIG 3
+              // frame[i - 1][j] = currentColor - (rand > intensity ? 1 : 0);
+              // END: FIG 3
+
+              // START: FIG 4
+              const nextJ = j - Math.round(rand * 3) + 1 + wind;
+
+              if (nextJ < 0 || nextJ > WIDTH - 1) return;
+              frame[i - 1][nextJ] = currentColor - (rand > intensity ? 1 : 0);
+              // END: FIG 4
+            }
+          });
+        });
+      }
+
+      function paintFrame(pxiels) {
+        container.innerHTML = pxiels
+          .map(p => {
+            const row = p
+              .map(c => {
+                return `<span>${c}</span>`;
+              })
+              .join('');
+
+            return `<div class="row">${row}</div>`;
+          })
+          .join('');
+      }
+
+      function paintFrameWithColor(pxiels) {
+        container.innerHTML = pxiels
+          .map(p => {
+            const row = p
+              .map(c => {
+                const color = colorMap[c];
+                return `<span
+                  style="background: rgb(${color.r},${color.g},${color.b})">
+                  ${c}
+                  </span>`;
+              })
+              .join('');
+
+            return `<div class="row">${row}</div>`;
+          })
+          .join('');
+      }
+
+      function paintFrameWithConvas(pxiels) {
+        const ctx = convas.getContext('2d');
+
+        const scaleWidth = Math.ceil(convas.width / WIDTH);
+        const scaleHeight = Math.ceil(convas.height / HEIGHT);
+
+        pxiels.forEach((row, j) => {
+          row.forEach((p, i) => {
+            ctx.fillStyle = `rgb(${colorMap[p].r},${colorMap[p].g},${colorMap[p].b})`;
+            ctx.fillRect(i * scaleWidth, j * scaleHeight, scaleWidth, scaleHeight);
+          });
+        });
+      }
+
+      function nextFrame() {
+        updateFrame(frame);
+
+        // START: FIG 1
+        // paintFrame(frame);
+        // END: FIG 1
+
+        // START: FIG 2
+        // paintFrameWithColor(frame);
+        // END: FIG 2
+
+        // START: FIG 5
+        paintFrameWithConvas(frame);
+        // END: FIG 5
+      }
+
+      function handleNext() {
+        isAnimating = false;
+        nextFrame();
+      }
+
+      function resetFrame() {
+        n(HEIGHT).forEach((_, i) => {
+          n(WIDTH).forEach((_, j) => {
+            frame[i] = frame[i] || [];
+            frame[i][j] = 0;
+          });
+        });
+
+        n(WIDTH).forEach((_, j) => {
+          // START: FIG 1
+          // frame[HEIGHT - 1][j] = 5;
+          // END: FIG 1
+
+          frame[HEIGHT - 1][j] = 36;
+        });
+
+        // START: FIG 1
+        // paintFrame(frame);
+        // END: FIG 1
+
+        // START: FIG 2
+        // paintFrameWithColor(frame);
+        // END: FIG 2
+
+        // START: FIG 5
+        paintFrameWithConvas(frame);
+        // END: FIG 5
+      }
+    </script>
+  </body>
+</html>

@@ -99,14 +99,16 @@
 
     function startAnimate() {
       requestAnimationFrame(() => {
-        paintFrame(createFrame());
+        updateFrame(frame);
+        paintFrame(frame);
+
         setTimeout(() => {
           startAnimate();
         }, 25);
       });
     }
 
-    function createFrame() {
+    function updateFrame(frame) {
       n(WIDTH).forEach((_, j) => {
         n(HEIGHT).forEach((_, i) => {
           // skip the first line, because we will set it
@@ -124,6 +126,9 @@
             const rand = Math.random();
             const nextJ = j - Math.round(rand * 3) + 1 + wind;
 
+            // prevent overflow
+            if (nextJ < 0 || nextJ > WIDTH - 1) return;
+
             // set the pixel's color to either current color or a darker color randomly
             frame[i - 1][nextJ] = currentColor - (rand > intensity ? 1 : 0);
           }
@@ -140,8 +145,6 @@
           });
         });
       }
-
-      return frame;
     }
 
     function paintFrame(frame) {
